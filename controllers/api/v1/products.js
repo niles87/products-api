@@ -1,151 +1,150 @@
-const router = require('express').Router();
-const { Product, Review } = require('../../models');
+const router = require("express").Router();
+const { Product, Review } = require("../../../models");
 
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const { rows } = await Product.getAll(req.query);
 
-    res.status(200).json(rows);
-  }
-  catch (err) {
+    const stockedRows = rows.map((row) => {
+      return {
+        ...row,
+        stock: row.quantity,
+      };
+    });
+
+    res.status(200).json(stockedRows);
+  } catch (err) {
     console.error(err);
     res.status(500).end();
   }
 });
 
-router.post('/', async (req, res) => {
+router.post("/", async (req, res) => {
   try {
-    const { rows } = await Product.create(req.body);
+    const { rows } = await Product.create({
+      ...req.body,
+      quantity: req.body.stock,
+    });
 
     res.status(200).json(rows[0]);
-  }
-  catch (err) {
+  } catch (err) {
     console.error(err);
     res.status(err.table ? 400 : 500).end();
   }
 });
 
-router.get('/:id', async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const { rows, rowCount } = await Product.getOne({
-      id: req.params.id
+      id: req.params.id,
     });
 
     if (rowCount > 0) {
-      res.status(200).json(rows[0]);
-    }
-    else {
+      res.status(200).json({ ...rows[0], stock: rows[0].quantity });
+    } else {
       res.status(404).end();
     }
-  }
-  catch (err) {
+  } catch (err) {
     console.error(err);
     res.status(500).end();
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
-    const { rowCount } = await Product.update({ 
+    const { rowCount } = await Product.update({
       id: req.params.id,
-      ...req.body
+      ...req.body,
+      quantity: req.body.stock,
     });
 
     res.status(rowCount === 0 ? 404 : 204).end();
-  }
-  catch (err) {
+  } catch (err) {
     console.error(err);
     res.status(err.table ? 400 : 500).end();
   }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
     const { rowCount } = await Product.delete({
-      id: req.params.id
+      id: req.params.id,
     });
 
     res.status(rowCount === 0 ? 404 : 204).end();
-  }
-  catch (err) {
+  } catch (err) {
     console.error(err);
     res.status(500).end();
   }
 });
 
-router.get('/:id/reviews', async (req, res) => {
+router.get("/:id/reviews", async (req, res) => {
   try {
     const { rows } = await Review.getAll({
       product_id: req.params.id,
-      ...req.query
+      ...req.query,
     });
 
     res.status(200).json(rows);
-  }
-  catch (err) {
+  } catch (err) {
     console.error(err);
     res.status(500).end();
   }
 });
 
-router.post('/:id/reviews', async (req, res) => {
+router.post("/:id/reviews", async (req, res) => {
   try {
     const { rows } = await Review.create({
       product_id: req.params.id,
-      ...req.body
+      ...req.body,
     });
 
     res.status(200).json(rows[0]);
-  }
-  catch (err) {
+  } catch (err) {
     console.error(err);
     res.status(err.table ? 400 : 500).end();
   }
 });
 
-router.get('/:product_id/reviews/:review_id', async (req, res) => {
+router.get("/:product_id/reviews/:review_id", async (req, res) => {
   try {
     const { rows, rowCount } = await Review.getOne({
-      id: req.params.review_id
+      id: req.params.review_id,
     });
 
     if (rowCount > 0) {
       res.status(200).json(rows[0]);
-    }
-    else {
+    } else {
       res.status(404).end();
     }
-  }
-  catch (err) {
+  } catch (err) {
     console.error(err);
     res.status(500).end();
   }
 });
 
-router.put('/:product_id/reviews/:review_id', async (req, res) => {
+router.put("/:product_id/reviews/:review_id", async (req, res) => {
   try {
-    const { rowCount } = await Review.update({ 
+    const { rowCount } = await Review.update({
       id: req.params.review_id,
-      ...req.body 
+      ...req.body,
     });
 
     res.status(rowCount === 0 ? 404 : 204).end();
-  }
-  catch (err) {
+  } catch (err) {
     console.error(err);
     res.status(err.table ? 400 : 500).end();
   }
 });
 
-router.delete('/:product_id/reviews/:review_id', async (req, res) => {
+router.delete("/:product_id/reviews/:review_id", async (req, res) => {
   try {
     const { rowCount } = await Review.delete({
-      id: req.params.review_id
+      id: req.params.review_id,
     });
 
     res.status(rowCount === 0 ? 404 : 204).end();
-  }
-  catch (err) {
+  } catch (err) {
     console.error(err);
     res.status(500).end();
   }
