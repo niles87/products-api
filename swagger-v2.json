@@ -142,6 +142,13 @@
               "type": "string",
               "enum": ["date", "price", "rating"]
             }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -302,6 +309,13 @@
           "schema": {
             "type": "string",
             "enum": ["date", "votes", "rating"]
+          }
+        },
+        {
+          "in": "query",
+          "name": "page",
+          "schema": {
+            "type": "integer"
           }
         }
       ],
