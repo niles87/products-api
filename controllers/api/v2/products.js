@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const { Product, Review } = require("../../../models");
+const { client } = require("../../../config/redis");
 
 router.get("/", async (req, res) => {
   try {
@@ -27,6 +28,9 @@ router.get("/", async (req, res) => {
       url.searchParams.set("page", page + 1);
       link += `<${url.href}>; rel="next"`;
     }
+
+    // await client.connect();
+    await client.set(req.originalUrl, JSON.stringify(rows), "EX", 300);
 
     res.set("Link", link).status(200).json(rows);
   } catch (err) {
@@ -119,6 +123,9 @@ router.get("/:id/reviews", async (req, res) => {
       url.searchParams.set("page", page + 1);
       link += `<${url.href}>; rel="next"`;
     }
+
+    // await client.connect();
+    await client.set(req.originalUrl, JSON.stringify(rows), "EX", 300);
 
     res.set("Link", link).status(200).json(rows);
   } catch (err) {
