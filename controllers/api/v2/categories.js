@@ -1,9 +1,14 @@
 const router = require("express").Router();
 const { Category } = require("../../../models");
+const { client } = require("../../../config/redis");
+const { promisify } = require("util");
 
 router.get("/", async (req, res) => {
   try {
     const { rows } = await Category.getAll();
+
+    await client.set(req.originalUrl, JSON.stringify(rows), "EX", 3600);
+
     res.status(200).json(rows);
   } catch (err) {
     console.log(err);
